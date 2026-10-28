@@ -25,7 +25,7 @@ them back in.
 ## How it works
 
 ```mermaid
-flowchart LR
+flowchart TD
   A[Upload a .pptx or .pdf] --> B[Worker renders and reads the pages]
   B --> C[Labels from the file, or OCR]
   C --> D[Haiku: is it a labelled diagram?]
