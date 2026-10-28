@@ -13,42 +13,42 @@
         "answer": "Frontal lobe",
         "synonyms": ["frontal"],
         "confusables": ["parietal lobe", "temporal lobe"],
-        "box": { "x": 0.1339, "y": 0.1872, "w": 0.1431, "h": 0.0487 }
+        "box": { "x": 0.2386, "y": 0.0857, "w": 0.1379, "h": 0.0248 }
       },
       {
         "number": 2,
         "answer": "Parietal lobe",
         "synonyms": ["parietal"],
         "confusables": ["frontal lobe", "occipital lobe"],
-        "box": { "x": 0.5413, "y": 0.1872, "w": 0.1413, "h": 0.0487 }
+        "box": { "x": 0.5043, "y": 0.0857, "w": 0.1429, "h": 0.0248 }
       },
       {
         "number": 3,
         "answer": "Occipital lobe",
         "synonyms": ["occipital"],
         "confusables": ["parietal lobe", "temporal lobe"],
-        "box": { "x": 0.7615, "y": 0.5718, "w": 0.1505, "h": 0.0487 }
+        "box": { "x": 0.8014, "y": 0.519, "w": 0.1586, "h": 0.0314 }
       },
       {
         "number": 4,
         "answer": "Cerebellum",
         "synonyms": ["the cerebellum"],
         "confusables": ["cerebrum", "cerebral cortex"],
-        "box": { "x": 0.7505, "y": 0.6923, "w": 0.1284, "h": 0.0487 }
+        "box": { "x": 0.8014, "y": 0.6867, "w": 0.135, "h": 0.0248 }
       },
       {
         "number": 5,
         "answer": "Temporal lobe",
         "synonyms": ["temporal"],
         "confusables": ["frontal lobe", "parietal lobe"],
-        "box": { "x": 0.0239, "y": 0.7359, "w": 0.1541, "h": 0.0487 }
+        "box": { "x": 0.04, "y": 0.6933, "w": 0.1664, "h": 0.0314 }
       },
       {
         "number": 6,
-        "answer": "Spinal Cord",
-        "synonyms": ["spinal cord"],
-        "confusables": ["brain stem", "brainstem"],
-        "box": { "x": 0.3138, "y": 0.8718, "w": 0.1303, "h": 0.0487 }
+        "answer": "Brainstem",
+        "synonyms": ["brain stem"],
+        "confusables": ["spinal cord"],
+        "box": { "x": 0.4864, "y": 0.8819, "w": 0.1164, "h": 0.0248 }
       }
     ]
   },

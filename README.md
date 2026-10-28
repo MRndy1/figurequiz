@@ -72,8 +72,10 @@ docker run --rm --env-file ingest/.env ingest:dev
 
 Tests: `npx vitest run` in `web/`, `pytest` in `ingest/`, and `supabase test db`.
 
-The sample deck behind `/demo` uses a third-party brain diagram, so this repository ships a
-placeholder in its place; the live site shows the real one.
+The brain diagram in the sample deck behind `/demo` is Figure 728 of *Gray's Anatomy* (1918),
+public domain, from
+[Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Lobes_of_the_brain_NL.svg), with
+labels added for FigureQuiz (`web/data/demo/brain-lobes.svg`).
 
 ## About
 
