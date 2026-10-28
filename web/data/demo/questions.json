@@ -1,0 +1,286 @@
+[
+  {
+    "id": "brain-lobes",
+    "type": "diagram",
+    "title": "Lobes of the Brain",
+    "sourceRef": "Brain_Anatomy_Sample.pptx, slide 3",
+    "sourceSlide": 3,
+    "image": "brain-lobes.png",
+    "prompt": "Name each labelled structure.",
+    "blanks": [
+      {
+        "number": 1,
+        "answer": "Frontal lobe",
+        "synonyms": ["frontal"],
+        "confusables": ["parietal lobe", "temporal lobe"],
+        "box": { "x": 0.1339, "y": 0.1872, "w": 0.1431, "h": 0.0487 }
+      },
+      {
+        "number": 2,
+        "answer": "Parietal lobe",
+        "synonyms": ["parietal"],
+        "confusables": ["frontal lobe", "occipital lobe"],
+        "box": { "x": 0.5413, "y": 0.1872, "w": 0.1413, "h": 0.0487 }
+      },
+      {
+        "number": 3,
+        "answer": "Occipital lobe",
+        "synonyms": ["occipital"],
+        "confusables": ["parietal lobe", "temporal lobe"],
+        "box": { "x": 0.7615, "y": 0.5718, "w": 0.1505, "h": 0.0487 }
+      },
+      {
+        "number": 4,
+        "answer": "Cerebellum",
+        "synonyms": ["the cerebellum"],
+        "confusables": ["cerebrum", "cerebral cortex"],
+        "box": { "x": 0.7505, "y": 0.6923, "w": 0.1284, "h": 0.0487 }
+      },
+      {
+        "number": 5,
+        "answer": "Temporal lobe",
+        "synonyms": ["temporal"],
+        "confusables": ["frontal lobe", "parietal lobe"],
+        "box": { "x": 0.0239, "y": 0.7359, "w": 0.1541, "h": 0.0487 }
+      },
+      {
+        "number": 6,
+        "answer": "Spinal Cord",
+        "synonyms": ["spinal cord"],
+        "confusables": ["brain stem", "brainstem"],
+        "box": { "x": 0.3138, "y": 0.8718, "w": 0.1303, "h": 0.0487 }
+      }
+    ]
+  },
+
+  {
+    "id": "mcq-cns-partner",
+    "type": "mcq",
+    "title": "The central nervous system",
+    "sourceRef": "Brain_Anatomy_Sample.pptx, slide 2",
+    "sourceSlide": 2,
+    "prompt": "Together with which structure does the brain form the central nervous system?",
+    "options": ["The cerebellum", "The spinal cord", "The occipital lobe", "Glial cells"],
+    "answerIndex": 1
+  },
+  {
+    "id": "mcq-brain-weight",
+    "type": "mcq",
+    "title": "Weight and composition",
+    "sourceRef": "Brain_Anatomy_Sample.pptx, slide 2",
+    "sourceSlide": 2,
+    "prompt": "What are the approximate weight and fat content of an average adult brain?",
+    "options": [
+      "Roughly 5 pounds and about 60% fat",
+      "Roughly 6 pounds and about 30% fat",
+      "Roughly 3 pounds and about 60% fat",
+      "Roughly 3 pounds and about 40% fat"
+    ],
+    "answerIndex": 2
+  },
+  {
+    "id": "mcq-matter-roles",
+    "type": "mcq",
+    "title": "Grey matter vs white matter",
+    "sourceRef": "Brain_Anatomy_Sample.pptx, slide 2",
+    "sourceSlide": 2,
+    "prompt": "How do grey matter and white matter differ in what they do with information?",
+    "options": [
+      "White matter processes and interprets information, while grey matter transmits it",
+      "Grey matter both processes and transmits information, while white matter interprets it",
+      "White matter processes information, while grey matter interprets and transmits it",
+      "Grey matter processes and interprets information, while white matter transmits it"
+    ],
+    "answerIndex": 3
+  },
+  {
+    "id": "mcq-vision-lobe",
+    "type": "mcq",
+    "title": "Which lobe handles vision",
+    "sourceRef": "Brain_Anatomy_Sample.pptx, slide 4",
+    "sourceSlide": 4,
+    "prompt": "Which lobe is responsible for vision?",
+    "options": ["Parietal", "Occipital", "Frontal", "Temporal"],
+    "answerIndex": 1
+  },
+  {
+    "id": "mcq-lobe-on-the-sides",
+    "type": "mcq",
+    "title": "Where the temporal lobe sits",
+    "sourceRef": "Brain_Anatomy_Sample.pptx, slide 4",
+    "sourceSlide": 4,
+    "prompt": "Where is the temporal lobe located?",
+    "options": [
+      "Back of the brain",
+      "Middle of the brain",
+      "Sides of the brain",
+      "Front of the head"
+    ],
+    "answerIndex": 2
+  },
+  {
+    "id": "mcq-hemisphere-control",
+    "type": "mcq",
+    "title": "Hemisphere control",
+    "sourceRef": "Brain_Anatomy_Sample.pptx, slide 4",
+    "sourceSlide": 4,
+    "prompt": "Which statement about hemisphere control is correct?",
+    "options": [
+      "Each hemisphere controls the lobes on its own side of the brain",
+      "The right hemisphere controls the left side of the body",
+      "The left hemisphere controls the left side of the body",
+      "The right hemisphere controls the right side of the body"
+    ],
+    "answerIndex": 1
+  },
+  {
+    "id": "mcq-second-speech-lobe",
+    "type": "mcq",
+    "title": "Speech beyond the frontal lobe",
+    "sourceRef": "Brain_Anatomy_Sample.pptx, slide 4",
+    "sourceSlide": 4,
+    "prompt": "Besides the frontal lobe, which lobe lists speech among its main functions?",
+    "options": ["Occipital lobe", "Parietal lobe", "Temporal lobe", "Cerebellum"],
+    "answerIndex": 2
+  },
+
+  {
+    "id": "blank-brain-contents",
+    "type": "short_answer",
+    "title": "What the brain contains",
+    "sourceRef": "Brain_Anatomy_Sample.pptx, slide 2",
+    "sourceSlide": 2,
+    "prompt": "The brain contains blood vessels and nerves, including neurons and ____.",
+    "answer": "glial cells",
+    "synonyms": ["glia", "glial cell", "glial"],
+    "confusables": ["neurons", "white matter", "grey matter"]
+  },
+  {
+    "id": "blank-outer-portion",
+    "type": "short_answer",
+    "title": "The darker outer portion",
+    "sourceRef": "Brain_Anatomy_Sample.pptx, slide 2",
+    "sourceSlide": 2,
+    "prompt": "____ matter is the darker outer portion of the brain.",
+    "answer": "Grey",
+    "synonyms": ["Gray", "Grey matter", "Gray matter"],
+    "confusables": ["White", "White matter"]
+  },
+  {
+    "id": "blank-hemisphere-lobes",
+    "type": "short_answer",
+    "title": "Divided into four lobes",
+    "sourceRef": "Brain_Anatomy_Sample.pptx, slide 3",
+    "sourceSlide": 3,
+    "prompt": "Each hemisphere of the ____ is divided into four lobes.",
+    "answer": "cerebrum",
+    "synonyms": ["the cerebrum"],
+    "confusables": ["cerebellum", "cerebral cortex", "spinal cord"]
+  },
+  {
+    "id": "blank-middle-lobe",
+    "type": "short_answer",
+    "title": "The lobe in the middle",
+    "sourceRef": "Brain_Anatomy_Sample.pptx, slide 4",
+    "sourceSlide": 4,
+    "prompt": "The lobe located in the middle of the brain is the ____ lobe.",
+    "answer": "Parietal",
+    "synonyms": ["Parietal lobe"],
+    "confusables": ["Temporal", "Frontal", "Occipital"]
+  },
+  {
+    "id": "blank-personality-lobe",
+    "type": "short_answer",
+    "title": "Personality and decision-making",
+    "sourceRef": "Brain_Anatomy_Sample.pptx, slide 4",
+    "sourceSlide": 4,
+    "prompt": "Personality, decision-making, movement and speech are main functions of the ____ lobe.",
+    "answer": "Frontal",
+    "synonyms": ["Frontal lobe"],
+    "confusables": ["Parietal", "Temporal", "Occipital"]
+  },
+
+  {
+    "id": "card-cell-types",
+    "type": "flashcard",
+    "title": "Cells in the brain",
+    "sourceRef": "Brain_Anatomy_Sample.pptx, slide 2",
+    "sourceSlide": 2,
+    "front": "The brain contains blood vessels and nerves — including which two cell types?",
+    "back": "Neurons and glial cells."
+  },
+  {
+    "id": "card-brain-functions",
+    "type": "flashcard",
+    "title": "What the brain controls",
+    "sourceRef": "Brain_Anatomy_Sample.pptx, slide 2",
+    "sourceSlide": 2,
+    "front": "The brain is described as a complex organ controlling which nine things?",
+    "back": "Thought, memory, emotion, touch, motor skills, vision, breathing, temperature and hunger."
+  },
+  {
+    "id": "card-grey-matter",
+    "type": "flashcard",
+    "title": "Grey matter",
+    "sourceRef": "Brain_Anatomy_Sample.pptx, slide 2",
+    "sourceSlide": 2,
+    "front": "Where in the brain is grey matter found, and how does it appear?",
+    "back": "The darker outer portion of the brain."
+  },
+  {
+    "id": "card-white-matter",
+    "type": "flashcard",
+    "title": "White matter",
+    "sourceRef": "Brain_Anatomy_Sample.pptx, slide 2",
+    "sourceSlide": 2,
+    "front": "Where in the brain is white matter found, and how does it appear?",
+    "back": "The lighter inner section of the brain."
+  },
+  {
+    "id": "card-four-lobes",
+    "type": "flashcard",
+    "title": "Lobes per hemisphere",
+    "sourceRef": "Brain_Anatomy_Sample.pptx, slide 3",
+    "sourceSlide": 3,
+    "front": "Each hemisphere of the cerebrum is divided into how many lobes?",
+    "back": "Four."
+  },
+  {
+    "id": "card-frontal-functions",
+    "type": "flashcard",
+    "title": "Frontal lobe functions",
+    "sourceRef": "Brain_Anatomy_Sample.pptx, slide 4",
+    "sourceSlide": 4,
+    "front": "What are the main functions of the frontal lobe, and which speech area does it contain?",
+    "back": "Personality, decision-making, movement and speech; the speech area is Broca's area."
+  },
+  {
+    "id": "card-parietal-functions",
+    "type": "flashcard",
+    "title": "Parietal lobe functions",
+    "sourceRef": "Brain_Anatomy_Sample.pptx, slide 4",
+    "sourceSlide": 4,
+    "front": "What are the main functions of the parietal lobe?",
+    "back": "Object identification, spatial relationships, and pain and touch."
+  },
+  {
+    "id": "card-lobe-locations",
+    "type": "flashcard",
+    "title": "Where each lobe sits",
+    "sourceRef": "Brain_Anatomy_Sample.pptx, slide 4",
+    "sourceSlide": 4,
+    "front": "What location is listed for each lobe — frontal, parietal, temporal and occipital?",
+    "back": "Frontal: front of the head; parietal: middle of the brain; temporal: sides of the brain; occipital: back of the brain."
+  },
+
+  {
+    "id": "essay-matter-compare",
+    "type": "essay",
+    "title": "Explain grey and white matter",
+    "sourceRef": "Brain_Anatomy_Sample.pptx, slide 2",
+    "sourceSlide": 2,
+    "prompt": "Explain how grey matter and white matter differ, both in where they sit in the brain and in what they do.",
+    "locked": true,
+    "lockedReason": "Written answers are marked by the AI against a rubric. Sign up and your own decks get them, at 2 credits a marking."
+  }
+]

@@ -1,0 +1,239 @@
+{
+  "$comment": "One example of every shape web and the ingest worker exchange. web/lib/contracts.test.ts parses this file with the Zod schemas in web/lib/contracts.ts, and ingest's tests parse it with the worker's own models, so a shape can't change on one side only. Keys are snake_case because these objects live in Postgres jsonb. Ids are made up. Storage object keys never include the bucket name. Boxes are 0-1 fractions of the stored image they are drawn on.",
+
+  "enums": {
+    "document_status": ["uploading", "queued", "processing", "extracted", "generating", "ready", "failed"],
+    "question_status": ["pending", "ready", "failed"],
+    "question_type": ["diagram_blank", "table_blank", "mcq", "short_answer", "flashcard", "essay"],
+    "asset_kind": ["text_block", "labeled_diagram", "table"]
+  },
+
+  "storage_paths": {
+    "user_id": "6f1c2d3e-4b5a-4c6d-8e7f-9a0b1c2d3e4f",
+    "document_id": "0b7e3c1a-2d4f-4e6a-9b8c-7d6e5f4a3b2c",
+    "asset_id": "8a9b0c1d-2e3f-5a4b-9c5d-6e7f8a9b0c1d",
+    "question_id": "c4d5e6f7-0819-4a2b-8c3d-4e5f60718293",
+    "page": 3,
+    "upload": {
+      "bucket": "uploads",
+      "key": "6f1c2d3e-4b5a-4c6d-8e7f-9a0b1c2d3e4f/0b7e3c1a-2d4f-4e6a-9b8c-7d6e5f4a3b2c.pptx"
+    },
+    "pdf_upload": {
+      "bucket": "uploads",
+      "key": "6f1c2d3e-4b5a-4c6d-8e7f-9a0b1c2d3e4f/0b7e3c1a-2d4f-4e6a-9b8c-7d6e5f4a3b2c.pdf"
+    },
+    "page_render": {
+      "bucket": "renders",
+      "key": "6f1c2d3e-4b5a-4c6d-8e7f-9a0b1c2d3e4f/0b7e3c1a-2d4f-4e6a-9b8c-7d6e5f4a3b2c/pages/003.png"
+    },
+    "asset_image": {
+      "bucket": "renders",
+      "key": "6f1c2d3e-4b5a-4c6d-8e7f-9a0b1c2d3e4f/0b7e3c1a-2d4f-4e6a-9b8c-7d6e5f4a3b2c/assets/8a9b0c1d-2e3f-5a4b-9c5d-6e7f8a9b0c1d.png"
+    },
+    "question_image": {
+      "bucket": "renders",
+      "key": "6f1c2d3e-4b5a-4c6d-8e7f-9a0b1c2d3e4f/0b7e3c1a-2d4f-4e6a-9b8c-7d6e5f4a3b2c/questions/c4d5e6f7-0819-4a2b-8c3d-4e5f60718293.png"
+    }
+  },
+
+  "claimed_jobs": [
+    {
+      "queue_name": "extract",
+      "msg_id": 41,
+      "read_ct": 1,
+      "message": {
+        "document_id": "0b7e3c1a-2d4f-4e6a-9b8c-7d6e5f4a3b2c",
+        "user_id": "6f1c2d3e-4b5a-4c6d-8e7f-9a0b1c2d3e4f",
+        "storage_path": "6f1c2d3e-4b5a-4c6d-8e7f-9a0b1c2d3e4f/0b7e3c1a-2d4f-4e6a-9b8c-7d6e5f4a3b2c.pptx"
+      }
+    },
+    {
+      "queue_name": "blank",
+      "msg_id": 7,
+      "read_ct": 1,
+      "message": {
+        "question_id": "c4d5e6f7-0819-4a2b-8c3d-4e5f60718293",
+        "document_id": "0b7e3c1a-2d4f-4e6a-9b8c-7d6e5f4a3b2c",
+        "user_id": "6f1c2d3e-4b5a-4c6d-8e7f-9a0b1c2d3e4f",
+        "asset_id": "8a9b0c1d-2e3f-5a4b-9c5d-6e7f8a9b0c1d",
+        "image_path": "6f1c2d3e-4b5a-4c6d-8e7f-9a0b1c2d3e4f/0b7e3c1a-2d4f-4e6a-9b8c-7d6e5f4a3b2c/assets/8a9b0c1d-2e3f-5a4b-9c5d-6e7f8a9b0c1d.png",
+        "blanks": [
+          { "number": 1, "x": 0.1339, "y": 0.1872, "w": 0.1431, "h": 0.0487 },
+          { "number": 2, "x": 0.5413, "y": 0.1872, "w": 0.1413, "h": 0.0487 },
+          { "number": 3, "x": 0.7505, "y": 0.6923, "w": 0.1284, "h": 0.0487 },
+          { "number": 4, "x": 0.0239, "y": 0.7359, "w": 0.1541, "h": 0.0487 }
+        ]
+      }
+    }
+  ],
+
+  "complete_extract": {
+    "msg_id": 41,
+    "page_count": 4,
+    "assets": [
+      {
+        "id": "3f2b1c4d-5e6f-5a7b-8c9d-0e1f2a3b4c5d",
+        "page": 2,
+        "kind": "text_block",
+        "tier": 1,
+        "payload": {
+          "title": "The Brain",
+          "text": "The brain and the spinal cord form the central nervous system.\nThe brain contains blood vessels and nerves, including neurons and glial cells."
+        },
+        "image_path": null
+      },
+      {
+        "id": "8a9b0c1d-2e3f-5a4b-9c5d-6e7f8a9b0c1d",
+        "page": 3,
+        "kind": "labeled_diagram",
+        "tier": 2,
+        "payload": {
+          "labels": [
+            { "text": "Human Brain Anatomy", "x": 0.3, "y": 0.02, "w": 0.4, "h": 0.06, "confidence": 96 },
+            { "text": "Frontal lobe", "x": 0.1339, "y": 0.1872, "w": 0.1431, "h": 0.0487, "confidence": 95 },
+            { "text": "Parietal lobe", "x": 0.5413, "y": 0.1872, "w": 0.1413, "h": 0.0487, "confidence": 96 },
+            { "text": "Occipital lobe", "x": 0.7615, "y": 0.5718, "w": 0.1505, "h": 0.0487, "confidence": 95 },
+            { "text": "Cerebellum", "x": 0.7505, "y": 0.6923, "w": 0.1284, "h": 0.0487, "confidence": 96 },
+            { "text": "Temporal lobe", "x": 0.0239, "y": 0.7359, "w": 0.1541, "h": 0.0487, "confidence": 94 },
+            { "text": "Spinal Cord", "x": 0.3138, "y": 0.8718, "w": 0.1303, "h": 0.0487, "confidence": 95 }
+          ],
+          "image_width": 1090,
+          "image_height": 780
+        },
+        "image_path": "6f1c2d3e-4b5a-4c6d-8e7f-9a0b1c2d3e4f/0b7e3c1a-2d4f-4e6a-9b8c-7d6e5f4a3b2c/assets/8a9b0c1d-2e3f-5a4b-9c5d-6e7f8a9b0c1d.png"
+      },
+      {
+        "id": "5c6d7e8f-9a0b-5c1d-8e2f-3a4b5c6d7e8f",
+        "page": 4,
+        "kind": "table",
+        "tier": 1,
+        "payload": {
+          "rows": [
+            ["Lobe", "Location", "Main functions"],
+            ["Frontal", "Front of the head", "Personality, decision-making, movement, speech (Broca's area)"],
+            ["Parietal", "Middle of the brain", "Object identification, spatial relationships, pain and touch"],
+            ["Temporal", "Sides of the brain", "Short-term memory, speech, musical rhythm, smell recognition"],
+            ["Occipital", "Back of the brain", "Vision"]
+          ],
+          "header_rows": 1
+        },
+        "image_path": null
+      }
+    ]
+  },
+
+  "complete_blank": {
+    "msg_id": 7,
+    "image_path": "6f1c2d3e-4b5a-4c6d-8e7f-9a0b1c2d3e4f/0b7e3c1a-2d4f-4e6a-9b8c-7d6e5f4a3b2c/questions/c4d5e6f7-0819-4a2b-8c3d-4e5f60718293.png"
+  },
+
+  "ingest_callback": {
+    "method": "POST",
+    "path": "/api/ingest/callback",
+    "authorization": "Bearer <INGEST_CALLBACK_SECRET>",
+    "body": { "document_id": "0b7e3c1a-2d4f-4e6a-9b8c-7d6e5f4a3b2c" }
+  },
+
+  "create_question": [
+    {
+      "document_id": "0b7e3c1a-2d4f-4e6a-9b8c-7d6e5f4a3b2c",
+      "type": "diagram_blank",
+      "title": "Lobes of the brain",
+      "payload": { "prompt": "Name each numbered structure.", "numbers": [1, 2, 3, 4] },
+      "source_page": 3,
+      "asset_id": "8a9b0c1d-2e3f-5a4b-9c5d-6e7f8a9b0c1d",
+      "answer_key": {
+        "blanks": [
+          { "number": 1, "label_index": 1, "answer": "Frontal lobe", "synonyms": ["frontal"], "confusables": ["parietal lobe", "temporal lobe"] },
+          { "number": 2, "label_index": 2, "answer": "Parietal lobe", "synonyms": ["parietal"], "confusables": ["frontal lobe", "occipital lobe"] },
+          { "number": 3, "label_index": 4, "answer": "Cerebellum", "synonyms": [], "confusables": ["cerebrum"] },
+          { "number": 4, "label_index": 5, "answer": "Temporal lobe", "synonyms": ["temporal"], "confusables": ["frontal lobe", "parietal lobe"] }
+        ]
+      },
+      "model_used": "anthropic/claude-sonnet-5.5"
+    },
+    {
+      "document_id": "0b7e3c1a-2d4f-4e6a-9b8c-7d6e5f4a3b2c",
+      "type": "table_blank",
+      "title": "Where each lobe sits and what it does",
+      "payload": {
+        "prompt": "Fill in each numbered cell.",
+        "header_rows": 1,
+        "rows": [
+          ["Lobe", "Location", "Main functions"],
+          ["Frontal", { "blank": 1 }, "Personality, decision-making, movement, speech (Broca's area)"],
+          ["Parietal", "Middle of the brain", "Object identification, spatial relationships, pain and touch"],
+          [{ "blank": 2 }, "Sides of the brain", "Short-term memory, speech, musical rhythm, smell recognition"],
+          ["Occipital", "Back of the brain", { "blank": 3 }]
+        ]
+      },
+      "source_page": 4,
+      "asset_id": "5c6d7e8f-9a0b-5c1d-8e2f-3a4b5c6d7e8f",
+      "answer_key": {
+        "blanks": [
+          { "number": 1, "row": 1, "col": 1, "answer": "Front of the head", "synonyms": ["front of the brain"], "confusables": ["back of the head"] },
+          { "number": 2, "row": 3, "col": 0, "answer": "Temporal", "synonyms": ["temporal lobe"], "confusables": [] },
+          { "number": 3, "row": 4, "col": 2, "answer": "Vision", "synonyms": ["sight"], "confusables": [] }
+        ]
+      },
+      "model_used": "anthropic/claude-sonnet-5.5"
+    },
+    {
+      "document_id": "0b7e3c1a-2d4f-4e6a-9b8c-7d6e5f4a3b2c",
+      "type": "mcq",
+      "title": "The central nervous system",
+      "payload": {
+        "prompt": "Together with which structure does the brain form the central nervous system?",
+        "options": ["The cerebellum", "The spinal cord", "The occipital lobe", "Glial cells"]
+      },
+      "source_page": 2,
+      "asset_id": "3f2b1c4d-5e6f-5a7b-8c9d-0e1f2a3b4c5d",
+      "answer_key": { "answer_index": 1 },
+      "model_used": "anthropic/claude-haiku-5.5"
+    },
+    {
+      "document_id": "0b7e3c1a-2d4f-4e6a-9b8c-7d6e5f4a3b2c",
+      "type": "short_answer",
+      "title": "What the brain contains",
+      "payload": { "prompt": "The brain contains blood vessels and nerves, including neurons and ____." },
+      "source_page": 2,
+      "asset_id": "3f2b1c4d-5e6f-5a7b-8c9d-0e1f2a3b4c5d",
+      "answer_key": {
+        "answer": "glial cells",
+        "synonyms": ["glia", "glial cell", "glial"],
+        "confusables": ["neurons", "white matter", "grey matter"]
+      },
+      "model_used": "anthropic/claude-haiku-5.5"
+    },
+    {
+      "document_id": "0b7e3c1a-2d4f-4e6a-9b8c-7d6e5f4a3b2c",
+      "type": "flashcard",
+      "title": "Cells in the brain",
+      "payload": {
+        "front": "The brain contains blood vessels and nerves, including which two cell types?",
+        "back": "Neurons and glial cells."
+      },
+      "source_page": 2,
+      "asset_id": "3f2b1c4d-5e6f-5a7b-8c9d-0e1f2a3b4c5d",
+      "model_used": "anthropic/claude-haiku-5.5"
+    },
+    {
+      "document_id": "0b7e3c1a-2d4f-4e6a-9b8c-7d6e5f4a3b2c",
+      "type": "essay",
+      "title": "How the lobes share the work",
+      "payload": {
+        "prompt": "Explain how the cerebrum divides its work between its lobes. Name three lobes and describe what each one does."
+      },
+      "source_page": 4,
+      "answer_key": {
+        "rubric": [
+          { "criterion": "Names three lobes of the cerebrum correctly", "points": 2 },
+          { "criterion": "Gives a correct main function for each lobe it names", "points": 3 },
+          { "criterion": "Explains that each hemisphere has its own set of lobes", "points": 1 }
+        ],
+        "model_answer": "Each hemisphere of the cerebrum is divided into four lobes, and each lobe has its own main jobs. The frontal lobe, at the front of the head, handles personality, decision-making and movement, and holds Broca's area for speech. The parietal lobe, in the middle, identifies objects and handles spatial relationships, pain and touch. The occipital lobe, at the back, handles vision."
+      },
+      "model_used": "anthropic/claude-sonnet-5.5"
+    }
+  ]
+}

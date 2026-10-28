@@ -1,0 +1,310 @@
+{
+  "meta": {
+    "name": "FigureQuiz · Field Guide",
+    "description": "Light graph-paper study app: ink-navy type, highlighter-yellow emphasis, and paper-tag labels that students write their answers into in a handwritten face.",
+    "source_references": [
+      "Design canvas https://claude.ai/artifact/XkzkRL8C9Vg2G6qWTDci3Q: direction B on the Directions page and every board on the Screens page",
+      "Tokens copied from the mockups' source, not measured from screenshots"
+    ],
+    "created_at": "2026-10-26"
+  },
+  "design_system": {
+    "color": {
+      "palette_type": "complementary",
+      "primary": { "hex": "#1A2238", "role": "Ink: text, every border, primary buttons" },
+      "secondary": { "hex": "#4F5872", "role": "Muted ink: secondary text, nav links, captions" },
+      "accent": { "hex": "#FFE15A", "role": "Highlighter: emphasis swipes, number badges, correct answers, the hover offset on primary buttons" },
+      "neutral": {
+        "scale": ["#FFFFFF", "#FCFCFA", "#F6F8FD", "#EEF1F7", "#E2E6EF", "#C9D0E0", "#9AA1B5", "#6B7390", "#4F5872", "#1A2238"],
+        "usage": "#FCFCFA page ground under a 24px graph grid (rgba(37,72,160,.075) lines); #FFFFFF cards; #F6F8FD panels and empty thumbnails; #EEF1F7 progress tracks; #E2E6EF table column rules; #C9D0E0 dashed dividers; #9AA1B5 empty-state text; #6B7390 placeholders; #4F5872 secondary text; #1A2238 text and borders"
+      },
+      "semantic": {
+        "success": "#1E7F52",
+        "warning": "#FFE15A",
+        "error": "#E0492A",
+        "info": "#2548A0"
+      },
+      "surface": {
+        "background": "#FCFCFA",
+        "card": "#FFFFFF",
+        "elevated": "#FFFDF2"
+      },
+      "contrast_strategy": "Dark-on-light dominant: ink #1A2238 on white or #FCFCFA. Yellow is only ever a fill behind ink text, never a text colour. Error text uses #C2381B or #A12E14 (with #FFE7E0 tints) and success text #14613E on #E3F5EC, all above 4.5:1."
+    },
+    "typography": {
+      "type_scale": {
+        "display": { "size": "clamp(42px, 5vw, 66px)", "weight": 800, "line_height": 1.0, "tracking": "-0.035em" },
+        "heading_1": { "size": "clamp(32px, 4vw, 46px)", "weight": 800, "line_height": 1.02, "tracking": "-0.035em" },
+        "heading_2": { "size": "28px", "weight": 800, "line_height": 1.05, "tracking": "-0.025em" },
+        "heading_3": { "size": "22px", "weight": 700, "line_height": 1.1, "tracking": "-0.02em" },
+        "body": { "size": "16px", "weight": 400, "line_height": 1.55, "tracking": "0" },
+        "body_small": { "size": "14px", "weight": 500, "line_height": 1.5, "tracking": "0" },
+        "caption": { "size": "13px", "weight": 600, "line_height": 1.4, "tracking": "0" },
+        "overline": { "size": "11px", "weight": 700, "line_height": 1.2, "tracking": "0.1em" }
+      },
+      "font_families": {
+        "heading": "Bricolage Grotesque (500, 700, 800)",
+        "body": "Instrument Sans (400, 500, 600, 700)",
+        "mono": "None. The third face is Caveat (500 to 700), used where a student would write by hand: typed answers, margin notes and step numerals"
+      },
+      "font_style_notes": "Characterful grotesk headlines with tight tracking over a neutral sans for the interface. Caveat appears only for handwriting moments, at 21px or more, and never for paragraphs. Overlines are uppercase."
+    },
+    "spacing": {
+      "base_unit": "4px",
+      "scale": [4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 28, 32, 36, 40, 48, 56, 64, 96, 112],
+      "content_density": "comfortable",
+      "section_rhythm": "Landing sections sit 112px apart. App screens use 28 to 36px between blocks. Cards are padded 20 to 32px."
+    },
+    "layout": {
+      "grid_system": "Flex-wrap rows with basis widths, plus auto-fit grids of repeat(auto-fit, minmax(min(270px to 340px, 100%), 1fr))",
+      "max_content_width": "1200px plus 24px side gutters",
+      "columns": "Two on desktop (content 2.4 to sidebar 1, or text 1 to figure 1.6); one on a phone",
+      "gutter": "24px to 28px (56px between hero text and figure)",
+      "breakpoints": ["640px: label inputs shrink their text", "900px: the sign-in illustration hides", "everything else is fluid"],
+      "alignment_tendency": "asymmetric"
+    },
+    "shape": {
+      "border_radius": {
+        "small": "5px (paper tags, type badges)",
+        "medium": "10px to 12px (cards, inputs, thumbnails)",
+        "large": "16px to 24px (drop zone, phone answer sheet)",
+        "pill": "999px (buttons, nav tabs, filter chips)"
+      },
+      "border_usage": "Bold borders: 1.5px ink on every card, input, tag and outlined button; a 2px dashed ink border on the drop zone",
+      "divider_style": "1.5px dashed #C9D0E0"
+    },
+    "elevation": {
+      "shadow_style": "hard drop",
+      "levels": {
+        "low": "2px 2px 0 rgba(26,34,56,.2) for tags and pins",
+        "medium": "8px 8px 0 rgba(26,34,56,.08) for cards",
+        "high": "4px 4px 0 #1A2238 for a focused tag; cards lift to 10px 12px 0 rgba(26,34,56,.12) on hover"
+      },
+      "depth_cues": "Offset hard shadows and slight rotation, like paper laid on a desk"
+    },
+    "iconography": {
+      "style": "Outline line icons with round caps and joins",
+      "stroke_weight": "1.8px to 2px at 24px",
+      "size_scale": "16, 18, 20, 22, 26 px",
+      "preferred_set": "Custom inline SVG in this stroke style; Lucide matches if a set is needed"
+    },
+    "motion": {
+      "easing": "cubic-bezier(.2,.8,.2,1) for entrances; cubic-bezier(.3,1.4,.5,1) spring for tags, hovers and focus; cubic-bezier(.6,0,.2,1) for highlighter sweeps",
+      "duration_scale": {
+        "micro": "160ms to 220ms",
+        "normal": "450ms to 600ms",
+        "macro": "700ms to 1100ms"
+      },
+      "entrance_pattern": "Fade up 14px with a 60 to 80ms stagger. Label tags drop in, rotating from -7 degrees, 80ms apart. The phone answer sheet slides up from below.",
+      "exit_pattern": "None in the mockups; route changes should cross-fade",
+      "philosophy": "playful bouncy, but functional first: every animation marks a change of state (focus, right, wrong, unlocked, processing)"
+    },
+    "components": {
+      "button_style": "Primary: ink pill (#1A2238, white text, 44 to 50px tall) that lifts on hover over a 4px yellow offset shadow. Secondary: white pill with a 1.5px ink outline that fills #FFF6C7 on hover. Tertiary: text link on a 7px highlighter underline that floods on hover.",
+      "input_style": "Form fields: 1.5px ink border, 12px radius, white, 50px tall; focus adds a 4px #FFE15A ring. Answer fields are paper tags: #FFFDF2, 5px radius, a slight tilt that straightens on focus, Caveat 21 to 30px, and a yellow numbered badge sitting on the left edge.",
+      "card_style": "White, 1.5px ink border, 12px radius, 8px hard offset shadow at 8% ink. Hover lifts 2 to 4px. A featured card gets a strip of yellow tape across its top edge.",
+      "navigation_pattern": "White top bar with an ink bottom border and pill tabs (active: #FFF6C7 fill with an ink outline). Study mode swaps the tabs for a back link, a 17-segment progress bar and an exit button.",
+      "modal_style": "Bottom sheet on phones: 22px top radius, ink top border, slides up. No centred modals yet.",
+      "list_style": "Rows split by 1.5px dashed dividers: icon tile, two lines of text, a status chip on the right",
+      "component_notes": "Type-on labels are inputs positioned in percentages over the extracted label boxes, each box padded by 1% of the width and 1.2% of the height so it covers the drawn blank and its number. Below roughly 600px they become tappable pins with one docked answer field and previous and next buttons. The source slide stays blurred and locked until the question is checked."
+    }
+  },
+  "design_style": {
+    "aesthetic": {
+      "mood": ["studious", "warm", "playful", "focused"],
+      "visual_metaphor": "A field notebook on graph paper: highlighter, paper tags and handwritten answers",
+      "era_influence": "Contemporary indie editorial with analogue stationery cues",
+      "genre": "friendly study tool, indie edtech",
+      "personality_traits": ["encouraging", "precise", "a little cheeky"],
+      "adjectives": ["hand-made", "crisp", "bright", "tactile"]
+    },
+    "visual_language": {
+      "complexity": "moderate",
+      "ornamentation": "subtle accents",
+      "whitespace_usage": "Generous around the figure and between landing sections",
+      "visual_weight_distribution": "Ink borders anchor every block; yellow pulls the eye to the one thing that matters on each screen",
+      "focal_strategy": "single hero element: the diagram with its labels",
+      "contrast_level": "high",
+      "texture_usage": "A 24px graph grid behind everything; tape strips and tilt on paper elements"
+    },
+    "composition": {
+      "hierarchy_method": "typographic hierarchy plus highlighter colour weight",
+      "balance_type": "asymmetric",
+      "flow_direction": "Text on the left leads to the interactive figure on the right; top-down in the app",
+      "grouping_strategy": "Bordered cards with dashed internal dividers",
+      "negative_space_role": "Lets the diagram breathe and separates landing sections"
+    },
+    "imagery": {
+      "photo_treatment": "No photography. Real slide renders are shown untouched inside ink-bordered frames.",
+      "illustration_style": "Small outline line drawings with one coral accent stroke",
+      "graphic_elements": ["highlighter swipes", "yellow tape strips", "hand-drawn arrows", "paper tags", "numbered badges"],
+      "pattern_usage": "Graph-paper grid backgrounds",
+      "image_shape": "Rounded rectangles (6px to 8px) with 1.5px ink borders"
+    },
+    "interaction_feel": {
+      "feedback_style": "A right answer gets a yellow highlighter sweep and a hand-drawn green tick. A wrong one shakes and gets a coral wavy underline; in tables the correct answer is written underneath in handwriting.",
+      "hover_behavior": "Lift with an offset shadow; links flood with highlighter",
+      "transition_personality": "bouncy elastic",
+      "loading_style": "A yellow shimmer over the deck thumbnail plus a three-step checklist: Uploaded, Reading the slides, Writing questions",
+      "microinteraction_density": "moderate"
+    },
+    "brand_voice_in_ui": {
+      "tone": "warm, plain and encouraging",
+      "formality": "casual",
+      "cta_style": "direct imperative",
+      "empty_state_approach": "A handwritten nudge plus one action, e.g. \"drag it here, or Choose a file\"",
+      "error_tone": "Specific and actionable: says what failed and what still worked, e.g. \"Couldn’t read page 4. It looks like a scan of a printout.\""
+    }
+  },
+  "visual_effects": {
+    "overview": {
+      "effect_intensity": "subtle-accent",
+      "performance_tier": "lightweight",
+      "fallback_strategy": "prefers-reduced-motion turns every animation and transition off and shows final states",
+      "primary_technology": "CSS only"
+    },
+    "background_effects": {
+      "type": "none",
+      "description": "A static graph-paper grid drawn with two linear gradients; nothing moves",
+      "technology": "CSS gradients",
+      "params": {
+        "color_palette": ["rgba(37,72,160,.075)", "#FCFCFA"],
+        "speed": "static",
+        "density": "24px cells (20px on phones)",
+        "opacity": "7.5% lines",
+        "blend_mode": "normal"
+      }
+    },
+    "particle_systems": {
+      "enabled": false,
+      "type": "none",
+      "description": "Not used",
+      "technology": "none",
+      "params": {
+        "count": 0,
+        "shape": "none",
+        "size_range": "n/a",
+        "movement_pattern": "n/a",
+        "color_behavior": "n/a",
+        "interaction": "none",
+        "spawn_area": "n/a"
+      }
+    },
+    "3d_elements": {
+      "enabled": false,
+      "type": "none",
+      "description": "Not used",
+      "technology": "none",
+      "params": {
+        "renderer": "n/a",
+        "lighting": "n/a",
+        "camera": "n/a",
+        "materials": "n/a",
+        "geometry": "n/a",
+        "post_processing": [],
+        "interaction_model": "n/a"
+      }
+    },
+    "shader_effects": {
+      "enabled": false,
+      "type": "none",
+      "description": "Not used",
+      "technology": "none",
+      "params": {
+        "uniforms": "n/a",
+        "vertex_manipulation": "n/a",
+        "fragment_output": "n/a",
+        "noise_type": "n/a",
+        "distortion": "n/a"
+      }
+    },
+    "scroll_effects": {
+      "parallax": {
+        "enabled": false,
+        "layers": "0",
+        "depth_range": "n/a",
+        "speed_curve": "n/a"
+      },
+      "scroll_triggered_animations": {
+        "enabled": false,
+        "trigger_points": "n/a: entrances play on load",
+        "animation_type": "fade-up",
+        "scrub_behavior": "none"
+      },
+      "scroll_morphing": {
+        "enabled": false,
+        "description": "Not used"
+      }
+    },
+    "text_effects": {
+      "type": "gradient-fill",
+      "description": "A highlighter swipe sweeps in behind the last words of each hero headline",
+      "technology": "CSS background-size animation on a <mark>",
+      "params": {
+        "split_strategy": "by-word (only the highlighted phrase)",
+        "animation_per_unit": "Background grows from 0% to 100% width over 800ms",
+        "stagger": "Starts 550ms after the headline rises",
+        "effect_style": "marker highlight from 56% to 92% of the line height"
+      }
+    },
+    "cursor_effects": {
+      "enabled": false,
+      "type": "none",
+      "description": "Not used",
+      "params": {
+        "shape": "n/a",
+        "size": "n/a",
+        "blend_mode": "n/a",
+        "trail": "none",
+        "interaction_zone": "n/a"
+      }
+    },
+    "image_effects": {
+      "type": "reveal-clip",
+      "description": "The source slide is blurred and locked until the question is checked, then sharpens into view",
+      "technology": "CSS filter and transform transitions",
+      "params": {
+        "filter_pipeline": "blur(14px) saturate(.6) to none",
+        "hover_transform": "none",
+        "reveal_animation": "700ms unblur while scaling from 1.08 to 1, with the lock overlay fading out",
+        "distortion_type": "none"
+      }
+    },
+    "glassmorphism_neumorphism": {
+      "enabled": false,
+      "style": "none",
+      "params": {
+        "blur_radius": "n/a",
+        "transparency": "n/a",
+        "border_treatment": "n/a",
+        "shadow_type": "n/a",
+        "light_source_angle": "n/a"
+      }
+    },
+    "canvas_drawings": {
+      "enabled": false,
+      "type": "none",
+      "description": "Not used",
+      "technology": "none",
+      "params": {
+        "draw_method": "n/a",
+        "animation_loop": "n/a",
+        "color_scheme": "n/a",
+        "responsiveness": "n/a",
+        "interaction": "n/a"
+      }
+    },
+    "svg_animations": {
+      "enabled": true,
+      "type": "path-draw",
+      "description": "The hand-drawn arrow on the landing page and the green answer ticks draw themselves",
+      "params": {
+        "animation_method": "CSS stroke-dashoffset keyframes",
+        "path_morphing": "none",
+        "stroke_animation": "Arrow: a 220-unit dash over 1.1s after a 1.1s delay. Tick: a 26-unit dash over 0.5s after a 0.2s delay.",
+        "filter_effects": "none"
+      }
+    },
+    "composite_notes": "Everything is CSS: no canvas, WebGL or animation library, so it costs almost nothing on a school laptop. The two signature moments are the highlighter sweep (headlines, correct answers) and the tag drop-in (labels landing on the diagram). Keep yellow behind ink only. On phones the label inputs become pins plus a docked answer sheet, because at 375px each label box on the diagram is under 20px tall."
+  }
+}

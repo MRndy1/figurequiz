@@ -1,0 +1,34 @@
+# Secrets: commit .env.example only
+.env
+.env.*
+!.env.example
+
+# OS / editors
+.DS_Store
+.idea/
+.vscode/
+
+# Claude Code per-user settings
+.claude/settings.local.json
+
+# web/ (Node, Next.js)
+node_modules/
+.next/
+*.tsbuildinfo
+next-env.d.ts
+
+# ingest/ (Python)
+__pycache__/
+.venv/
+.pytest_cache/
+.ruff_cache/
+
+# Real lecture material and render output: copyrighted, never committed.
+# The extension rules catch decks dropped anywhere in the tree, not just in samples/ —
+# `git add -A` would otherwise sweep a lecturer's slides into a GitHub repo.
+ingest/samples/
+ingest/out/
+*.pptx
+*.ppt
+*.docx
+*.pdf
