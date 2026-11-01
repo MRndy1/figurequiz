@@ -13,6 +13,7 @@ import {
   safeNext,
 } from "@/lib/auth-redirects";
 import { signupsEnabled, supabaseEnv } from "@/lib/env";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 
 /** What the sign-in and sign-up forms show after a submit. The email is kept; never the password. */
@@ -72,14 +73,38 @@ export async function signUp(_state: AuthFormState, form: FormData): Promise<Aut
     redirect(next);
   }
 
+  const problem = await takeLatestPassword(parsed.data);
+  if (problem) return { email, error: problem };
+
   const { data, error } = await supabase.auth.signUp(parsed.data);
   if (error) return { email, error: describe(error) };
   // No session means the project asks new users to confirm their email first.
   if (!data.session) {
-    return { email, notice: "Check your inbox: confirm your email address, then sign in." };
+    return { email, notice: "Check your inbox: open the link we sent to confirm your email address." };
   }
 
   redirect(next);
+}
+
+/**
+ * Signing up again before confirming gets a new link, but Supabase keeps the first sign-up's
+ * password. Whoever made that sign-up may not own the address: they could wait for its owner to
+ * sign up and confirm, then sign in. So before Supabase sends the new link, an account waiting
+ * under the address takes this sign-up's password, which also ends every link sent before
+ * (supabase/migrations/*_unconfirmed_sign_ups.sql). Returns what to tell the student when that
+ * couldn't be done, and then nothing is sent.
+ */
+async function takeLatestPassword({ email, password }: { email: string; password: string }): Promise<string | null> {
+  const admin = createAdminClient();
+  const waiting = await admin.rpc("unconfirmed_sign_up", { email });
+  if (waiting.error) {
+    console.error("Sign-up: couldn't look for an account waiting to be confirmed", waiting.error);
+    return "Something went wrong. Try again in a minute.";
+  }
+  if (!waiting.data) return null;
+
+  const { error } = await admin.auth.admin.updateUserById(waiting.data, { password });
+  return error ? describe(error) : null;
 }
 
 /** Whether this session is a guest trying FigureQuiz (a Supabase anonymous user). */

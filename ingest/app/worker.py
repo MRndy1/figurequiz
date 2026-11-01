@@ -1,11 +1,16 @@
 """The ingest worker: claims jobs from the `extract` and `blank` queues and runs them.
 
     python -m app.worker               # keep working, waiting whenever both queues are empty
-    python -m app.worker --once        # exit once both queues are empty (a scheduled job)
+    python -m app.worker --once        # exit once both queues are empty
+    python -m app.worker --once --linger 90   # exit once they have stayed empty for 90 s (Azure)
 
 `claim_next_job` hands out blank jobs before extract jobs: they are small, and a student may
 be waiting on one. While both queues are empty the worker asks less and less often, down to
 every 15 seconds.
+
+In the cloud each run is started by jobs waiting in a queue, and starting one takes a minute.
+`--linger` keeps a run going after the queues empty, because the blank jobs for a deck appear a
+few seconds after its extract job, once web has asked Claude which labels to test.
 
 A claimed job stays hidden from other workers for `--visibility` seconds. If this worker dies
 mid-job, the job reappears after that with `read_ct` one higher, so a job claimed more than
@@ -111,10 +116,11 @@ class Worker:
         self._visibility_s = visibility_s
         self._stop = stop
 
-    def run(self, *, once: bool) -> int:
-        """Work until stopped or, with `once`, until both queues are empty. Returns the exit
-        status."""
+    def run(self, *, once: bool, linger_s: float = 0) -> int:
+        """Work until stopped or, with `once`, until both queues have stayed empty for
+        `linger_s` seconds. Returns the exit status."""
         idle = 0
+        empty_since: float | None = None
         while not self._stop.is_set():
             try:
                 row = self._supa.claim_next_job(self._visibility_s)
@@ -126,12 +132,15 @@ class Worker:
 
             if row is None:
                 if once:
-                    break
+                    empty_since = time.monotonic() if empty_since is None else empty_since
+                    if time.monotonic() - empty_since >= linger_s:
+                        break
                 self._stop.wait(IDLE_WAITS_S[min(idle, len(IDLE_WAITS_S) - 1)])
                 idle += 1
                 continue
 
             idle = 0
+            empty_since = None
             try:
                 self.process(row)
             except Exception:
@@ -199,11 +208,25 @@ def _visibility(text: str) -> int:
     return seconds
 
 
+def _linger(text: str) -> int:
+    seconds = int(text)
+    if not 0 <= seconds <= 600:
+        raise argparse.ArgumentTypeError("must be between 0 and 600 seconds")
+    return seconds
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         prog="app.worker", description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
     )
     parser.add_argument("--once", action="store_true", help="exit once both queues are empty")
+    parser.add_argument(
+        "--linger",
+        type=_linger,
+        default=0,
+        metavar="SECONDS",
+        help="with --once, wait this long for more jobs before exiting, 0-600 (default 0)",
+    )
     parser.add_argument(
         "--visibility",
         type=_visibility,
@@ -212,6 +235,8 @@ def main(argv: list[str] | None = None) -> int:
         help="how long a claimed job stays hidden from other workers, 1-3600 (default 600)",
     )
     args = parser.parse_args(argv)
+    if args.linger and not args.once:
+        parser.error("--linger only applies with --once")
 
     logging.basicConfig(
         level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s"
@@ -240,7 +265,7 @@ def main(argv: list[str] | None = None) -> int:
                 stop=stop,
             )
             log.info("working%s", " until both queues are empty" if args.once else "")
-            status = worker.run(once=args.once)
+            status = worker.run(once=args.once, linger_s=args.linger)
     finally:
         if callback is not None:
             callback.close()

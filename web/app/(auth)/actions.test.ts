@@ -1,4 +1,4 @@
-import { AuthError } from "@supabase/supabase-js";
+import { AuthError, type User } from "@supabase/supabase-js";
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { LOGIN_ERRORS } from "@/lib/auth-redirects";
@@ -10,8 +10,20 @@ import { signInWithGoogle, signUp } from "./actions";
  * signInWithGoogle against the real @supabase/ssr server client, with a cookie jar standing in
  * for next/headers. Building the authorize URL and storing the PKCE verifier happen locally, so
  * no Supabase is needed; only the provider check's fetch is stubbed. signUp's calls to Supabase
- * Auth are stubbed on the client.
+ * Auth are stubbed on the client, and its admin calls on a stand-in for the admin client.
  */
+
+type Waiting = { data: string | null; error: { message: string } | null };
+type Updated = { data: { user: User | null }; error: AuthError | null };
+
+const admin = vi.hoisted(() => ({
+  rpc: vi.fn<(name: string, args: { email: string }) => Promise<Waiting>>(),
+  updateUserById: vi.fn<(id: string, attributes: { password: string }) => Promise<Updated>>(),
+}));
+
+vi.mock("@/lib/supabase/admin", () => ({
+  createAdminClient: () => ({ rpc: admin.rpc, auth: { admin: { updateUserById: admin.updateUserById } } }),
+}));
 
 const mocks = vi.hoisted(() => {
   class Redirect extends Error {
@@ -188,6 +200,81 @@ describe("signInWithGoogle", () => {
     expect(url.pathname).toBe("/login");
     expect(url.searchParams.get("error")).toBe(LOGIN_ERRORS.failed);
     expect(createClient).not.toHaveBeenCalled();
+  });
+});
+
+describe("signUp for a new account", () => {
+  const ACCOUNT = "4f1d2c3b-5e6a-4b7c-8d9e-0a1b2c3d4e5f";
+  const PASSWORD = "correct horse battery";
+
+  const user = (fields: Partial<User> = {}): User => ({
+    id: ACCOUNT,
+    aud: "authenticated",
+    app_metadata: {},
+    user_metadata: {},
+    created_at: "2026-10-28T09:00:00Z",
+    email: "student@example.com",
+    ...fields,
+  });
+
+  /** A visitor who isn't signed in, and Supabase Auth asking for the email to be confirmed. */
+  async function confirmingClient() {
+    const client = await createClient();
+    const signUpCall = vi
+      .spyOn(client.auth, "signUp")
+      .mockResolvedValue({ data: { user: user(), session: null }, error: null });
+    vi.mocked(createClient).mockResolvedValue(client);
+    return signUpCall;
+  }
+
+  beforeEach(() => {
+    admin.rpc.mockReset();
+    admin.rpc.mockResolvedValue({ data: null, error: null });
+    admin.updateUserById.mockReset();
+    admin.updateUserById.mockResolvedValue({ data: { user: user() }, error: null });
+  });
+
+  function form(): FormData {
+    const data = new FormData();
+    data.set("email", "student@example.com");
+    data.set("password", PASSWORD);
+    return data;
+  }
+
+  it("asks for the confirmation", async () => {
+    const signUpCall = await confirmingClient();
+
+    const state = await signUp({}, form());
+
+    expect(signUpCall).toHaveBeenCalledExactlyOnceWith({ email: "student@example.com", password: PASSWORD });
+    expect(state.notice).toMatch(/Check your inbox/);
+    expect(admin.rpc).toHaveBeenCalledExactlyOnceWith("unconfirmed_sign_up", { email: "student@example.com" });
+    expect(admin.updateUserById).not.toHaveBeenCalled();
+  });
+
+  it("gives an account waiting under the address this sign-up's password, before the link goes", async () => {
+    const signUpCall = await confirmingClient();
+    admin.rpc.mockResolvedValue({ data: ACCOUNT, error: null });
+
+    const state = await signUp({}, form());
+
+    expect(state.notice).toMatch(/Check your inbox/);
+    // Supabase keeps the first sign-up's password, which may be someone else's. Changing it ends
+    // the links sent so far, so it has to come before Supabase sends the new one.
+    expect(admin.updateUserById).toHaveBeenCalledExactlyOnceWith(ACCOUNT, { password: PASSWORD });
+    expect(admin.updateUserById.mock.invocationCallOrder[0]).toBeLessThan(signUpCall.mock.invocationCallOrder[0]);
+  });
+
+  it("sends nothing when the waiting account couldn't take the password", async () => {
+    const signUpCall = await confirmingClient();
+    admin.rpc.mockResolvedValueOnce({ data: null, error: { message: "fetch failed" } });
+    expect((await signUp({}, form())).error).toMatch(/Try again/);
+
+    admin.rpc.mockResolvedValue({ data: ACCOUNT, error: null });
+    admin.updateUserById.mockResolvedValueOnce({ data: { user: null }, error: new AuthError("fetch failed") });
+    expect((await signUp({}, form())).error).toMatch(/Try again/);
+
+    expect(signUpCall).not.toHaveBeenCalled();
   });
 });
 

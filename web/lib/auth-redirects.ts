@@ -1,6 +1,7 @@
 /**
- * Where signing in sends people: shared by the sign-in actions, the OAuth callback and the login
- * page. Nothing here reads cookies or env, so it runs anywhere, the tests included.
+ * Where signing in sends people: shared by the sign-in actions, the OAuth callback, the email
+ * confirmation link and the login page. Nothing here reads cookies or env, so it runs anywhere,
+ * the tests included.
  */
 
 /** Where a signed-in student lands when nothing better is known. */
@@ -77,9 +78,21 @@ export function authCallbackUrl(origin: string, next: string): string {
 }
 
 /**
- * Everything the login page may say about a failed Google sign-in. The page shows `?error=` only
- * when it is one of these: the query string is anyone's to write, and the page must not say
- * whatever a link tells it to.
+ * How the auth routes answer: a relative Location, which browsers resolve against the request's
+ * URL, so the redirect stays on whichever host it came in on. Session cookies set while handling
+ * the request ride along, and no cache may keep them.
+ */
+export function seeOther(location: string): Response {
+  return new Response(null, {
+    status: 303,
+    headers: { location, "cache-control": "no-store" },
+  });
+}
+
+/**
+ * Everything the login page may say about a Google sign-in or a confirmation link that didn't
+ * work. The page shows `?error=` only when it is one of these: the query string is anyone's to
+ * write, and the page must not say whatever a link tells it to.
  */
 export const LOGIN_ERRORS = {
   unavailable: "Google sign-in isn't available right now. Use your email and password instead.",
@@ -89,6 +102,10 @@ export const LOGIN_ERRORS = {
   failed: "Google sign-in didn't work. Try again in a minute.",
   identityTaken:
     "That Google account already has FigureQuiz. Sign in with it to use it; the guest deck stays with the guest.",
+  // An email scanner that opens links before the student does uses the token up, but the address
+  // is confirmed all the same; and signing up again sends a new link to an unconfirmed one.
+  confirmFailed:
+    "That confirmation link has expired or was already used. If you've confirmed your email, sign in. If not, sign up again for a new link.",
 } as const;
 
 export type LoginError = (typeof LOGIN_ERRORS)[keyof typeof LOGIN_ERRORS];

@@ -3,7 +3,7 @@
 -- owner so it can look inside the queues; rls.test.sql checks who may call the functions.
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(68);
+select plan(70);
 
 -- Message ids outlive a rolled-back run, so the ones a later assertion needs are kept here.
 create temp table job (name text primary key, msg_id bigint not null);
@@ -48,8 +48,9 @@ select throws_ok(
   $$select public.enqueue_extract('c2000000-0000-0000-0000-000000000001', 'c0000000-0000-0000-0000-00000000000c')$$,
   'P0002', null, 'a document is queued only once');
 
--- claim_next_job
+-- claim_next_job and waiting_jobs
 
+select is(public.waiting_jobs(), '{"waiting": 1}'::jsonb, 'a queued job is waiting');
 select throws_ok('select * from public.claim_next_job(0)', '22023', null,
   'claim_next_job refuses a visibility timeout of 0');
 select results_eq(
@@ -59,6 +60,7 @@ select results_eq(
 select is((select status from public.documents where id = 'c2000000-0000-0000-0000-000000000001'),
   'processing', 'the document is processing');
 select is_empty('select * from public.claim_next_job(30)', 'a claimed job stays hidden');
+select is(public.waiting_jobs(), '{"waiting": 0}'::jsonb, 'a claimed job is no longer waiting');
 
 do $$ begin perform pgmq.set_vt('extract', (select max(msg_id) from pgmq.q_extract), 0); end $$;
 select results_eq(

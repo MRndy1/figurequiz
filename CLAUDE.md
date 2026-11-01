@@ -91,7 +91,7 @@ shared secret sent by `ingest`.
 | Layer | Choice | Notes |
 |---|---|---|
 | Frontend + API | Next.js (App Router, TS) | Server Actions for mutations |
-| DB / Auth / Storage | Supabase (Postgres) | RLS on every table; sign-in by email + password or Google |
+| DB / Auth / Storage | Supabase (Postgres) | RLS on every table; sign-in by Google, or by email + password as a proof of concept; email confirmation is built (`/auth/confirm`) but off |
 | Job queue | Supabase Queues (`pgmq`) | queues `extract` and `blank`; `web` enqueues, `ingest` consumes |
 | Billing | Stripe | Checkout + Customer Portal, webhook → `subscriptions` |
 | Ingestion | Python 3.11 queue worker | containerized; no HTTP server |
@@ -542,6 +542,11 @@ supabase migration new <name>
 - **Don't trust a single "is this scanned?" check.** Some PDFs have a partial text layer.
   Check per page, not per document.
 - **Supabase Storage signed URLs expire.** Fetch fresh in `ingest`; don't persist URLs.
+- **With email confirmation on, signing up again keeps an unconfirmed account's first password.**
+  Supabase only sends a new link, so whoever signed the address up first could sign in once its
+  owner confirms. Sign-up gives such an account the latest password first (`unconfirmed_sign_up`).
+  It must come before the email: changing a password voids every link already sent. Confirmation
+  is off for now, so no account is ever unconfirmed and this never fires.
 - **Stripe webhooks must be idempotent.** Insert `event.id` into `stripe_events` in the same
   transaction as the subscription write (a Postgres function called via `rpc`); a conflict
   means already processed — return 200 and skip.

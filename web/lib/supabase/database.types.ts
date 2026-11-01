@@ -287,6 +287,12 @@ isOneToOne: false
                            },
 "spend_marking":
 { Args: { "amount": number,"question_id": string }; Returns: string
+                           },
+"unconfirmed_sign_up":
+{ Args: { "email": string }; Returns: string
+                           },
+"waiting_jobs":
+{ Args: never; Returns: Json
                            }
           }
           Enums: {

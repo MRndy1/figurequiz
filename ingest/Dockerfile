@@ -1,6 +1,6 @@
 # LibreOffice is the only way to render slides (CLAUDE.md, Gotchas), so it ships in the image
-# rather than being installed on anyone's machine. Build this on each host: the Mac is arm64
-# and Azure Container Apps is amd64.
+# rather than being installed on anyone's machine. GitHub builds the amd64 image that Azure
+# Container Apps runs (.github/workflows/worker-image.yml); build it locally to run it on a Mac.
 FROM python:3.11-slim
 
 COPY --from=ghcr.io/astral-sh/uv:0.12.13 /uv /uvx /bin/
@@ -40,4 +40,5 @@ USER worker
 
 # Claims jobs until stopped. SIGTERM finishes the current job first, so give `docker stop` a
 # longer timeout than its default 10 s; `python -m app.cli` is still there for one-off runs.
+# Azure overrides this with `--once --linger 90`, so each run ends when the work does.
 CMD ["python", "-m", "app.worker"]

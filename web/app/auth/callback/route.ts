@@ -4,6 +4,7 @@ import {
   loginErrorPath,
   requestOrigin,
   safeNext,
+  seeOther,
   type LoginError,
 } from "@/lib/auth-redirects";
 import { createClient } from "@/lib/supabase/server";
@@ -73,18 +74,6 @@ async function signInInstead(request: Request, next: string): Promise<string | n
   }
   console.info("Google sign-in: a guest chose a Google account that has FigureQuiz; signing in to it");
   return data.url;
-}
-
-/**
- * A relative Location, which browsers resolve against this URL, so the redirect stays on whichever
- * host the callback came in on. The session cookies set by the exchange ride along, and no cache
- * may keep them.
- */
-function seeOther(location: string): Response {
-  return new Response(null, {
-    status: 303,
-    headers: { location, "cache-control": "no-store" },
-  });
 }
 
 /** Supabase Auth's error code (or Google's bare `error`), as something a student can act on. */

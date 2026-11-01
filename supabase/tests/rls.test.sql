@@ -3,7 +3,7 @@
 -- answer keys. Run with `supabase test db`.
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(101);
+select plan(107);
 
 -- Two users, each with one row in every table.
 insert into auth.users (id, email) values
@@ -132,12 +132,14 @@ select function_privs_are('public', f.name, f.args, r.role, '{}', r.role || ' ca
     ('complete_blank', array['bigint', 'text']),
     ('fail_job', array['text', 'bigint', 'text']),
     ('retry_job_later', array['text', 'bigint', 'integer']),
+    ('waiting_jobs', '{}'::text[]),
     ('hold_credits', array['uuid', 'integer']),
     ('release_credits', array['uuid']),
     ('grant_credits', array['uuid', 'integer', 'text']),
     ('spend_marking', array['uuid', 'integer']),
     ('refund_marking', array['uuid']),
-    ('grant_guest_credits', array['uuid'])
+    ('grant_guest_credits', array['uuid']),
+    ('unconfirmed_sign_up', array['text'])
   ) as f (name, args)
   cross join (values ('anon'), ('authenticated')) as r (role);
 
@@ -150,12 +152,14 @@ select function_privs_are('public', f.name, f.args, 'service_role', array['EXECU
     ('complete_blank', array['bigint', 'text']),
     ('fail_job', array['text', 'bigint', 'text']),
     ('retry_job_later', array['text', 'bigint', 'integer']),
+    ('waiting_jobs', '{}'::text[]),
     ('hold_credits', array['uuid', 'integer']),
     ('release_credits', array['uuid']),
     ('grant_credits', array['uuid', 'integer', 'text']),
     ('spend_marking', array['uuid', 'integer']),
     ('refund_marking', array['uuid']),
-    ('grant_guest_credits', array['uuid'])
+    ('grant_guest_credits', array['uuid']),
+    ('unconfirmed_sign_up', array['text'])
   ) as f (name, args);
 
 -- 3. The queues are unreachable except through those functions.

@@ -128,6 +128,24 @@ def test_an_idle_worker_asks_less_and_less_often():
     assert waits == [1, 2, 4, 8, 15, 15, 15]
 
 
+def test_a_lingering_run_picks_up_a_job_that_arrives_while_it_waits(jobs, monkeypatch):
+    clock = [0.0]
+    monkeypatch.setattr(worker.time, "monotonic", lambda: clock[0])
+    supa = FakeSupabase([])
+
+    class Stop(threading.Event):
+        def wait(self, timeout: float | None = None) -> bool:
+            clock[0] += timeout
+            if clock[0] == 3:  # generation has queued a blank job
+                supa.rows.append(row(BLANK))
+            return False
+
+    assert Worker(supa, print, visibility_s=600, stop=Stop()).run(once=True, linger_s=20) == 0
+    assert jobs.ran == [("blank", 7)]
+    # The job reset the wait: 20 s more of asking, not the 17 s left before it arrived.
+    assert clock[0] == 3 + 1 + 2 + 4 + 8 + 15
+
+
 def test_settings_keep_secrets_off_plain_http():
     local = {"SUPABASE_URL": "http://host.docker.internal:54321", "SUPABASE_SECRET_KEY": "k"}
     assert Settings.from_env(local).callback_url is None
