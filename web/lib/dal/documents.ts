@@ -13,6 +13,7 @@ import {
 } from "@/lib/contracts";
 import { requireUser } from "@/lib/dal/auth";
 import { QUESTION_IMAGE_TTL_SECONDS, signRenders } from "@/lib/dal/storage";
+import { justReady } from "@/lib/desk";
 import { megabytes } from "@/lib/format";
 import { ImageCheckOutput } from "@/lib/schemas/generation";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -302,4 +303,23 @@ const STALLED_AFTER_SECONDS: Partial<Record<DocumentStatus, number>> = {
 export function isStalled(document: Pick<DocumentSummary, "status" | "updated_at">, now: Date) {
   const limit = STALLED_AFTER_SECONDS[document.status];
   return limit !== undefined && now.getTime() - Date.parse(document.updated_at) > limit * 1000;
+}
+
+/**
+ * Whether the worker is still drawing the diagrams of a deck that has just become ready. A deck
+ * turns ready once its questions are written, seconds before their blanks are drawn, and studying
+ * only asks ready questions. Only a just-ready deck counts, so that a stopped worker can't keep the
+ * rest of a deck from its student.
+ */
+export async function isDrawing(deck: Pick<Deck, "id" | "status" | "updated_at">, now: Date): Promise<boolean> {
+  if (!justReady(deck, now)) return false;
+  const user = await requireUser();
+  const { count, error } = await (await createClient())
+    .from("questions")
+    .select("id", { count: "exact", head: true })
+    .eq("user_id", user.id)
+    .eq("document_id", deck.id)
+    .eq("status", "pending");
+  if (error) throw new Error(`Couldn't read document ${deck.id}'s questions: ${error.message}`);
+  return (count ?? 0) > 0;
 }

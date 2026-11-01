@@ -10,20 +10,20 @@ import { megabytes, pageCount } from "@/lib/format";
 
 export type Scene = "waiting" | "reading" | "writing" | "ready";
 
-/** How long a deck's page celebrates it being ready, for the student who watched it made. */
+/** How long after a deck becomes ready its page still treats it as just made. */
 const FRESH_FOR_MS = 2 * 60 * 1000;
+
+/** Whether a deck became ready moments ago. A ready deck's `updated_at` is when it became ready. */
+export function justReady(deck: Pick<Deck, "status" | "updated_at">, now: Date): boolean {
+  return deck.status === "ready" && now.getTime() - Date.parse(deck.updated_at) < FRESH_FOR_MS;
+}
 
 /**
  * Whether a deck became ready moments ago and hasn't been studied: its page then shows the desk's
- * fanned-out deck instead of the usual card. A ready deck's `updated_at` is when it became ready.
+ * fanned-out deck instead of the usual card.
  */
 export function justFinished(deck: Pick<Deck, "status" | "updated_at" | "progress">, now: Date): boolean {
-  return (
-    deck.status === "ready" &&
-    (deck.progress?.questions ?? 0) > 0 &&
-    deck.progress?.answered === 0 &&
-    now.getTime() - Date.parse(deck.updated_at) < FRESH_FOR_MS
-  );
+  return justReady(deck, now) && (deck.progress?.questions ?? 0) > 0 && deck.progress?.answered === 0;
 }
 
 /**

@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { PDF_MIME, PPTX_MIME } from "@/lib/contracts";
 import type { Desk } from "@/lib/dal/documents";
-import { deskLine, deskScene, deskSteps, firstUp, foundTag, justFinished } from "@/lib/desk";
+import { deskLine, deskScene, deskSteps, firstUp, foundTag, justFinished, justReady } from "@/lib/desk";
 
 const EMPTY: Desk = { found: [], written: 0, latest: null, types: {} };
 
@@ -127,5 +127,12 @@ describe("justFinished", () => {
     expect(justFinished({ ...deck, progress: { ...progress, questions: 0 } }, after(5))).toBe(false);
     expect(justFinished({ ...deck, progress: null }, after(5))).toBe(false);
     expect(justFinished({ ...deck, status: "generating" }, after(5))).toBe(false);
+  });
+
+  it("calls a deck just ready for the two minutes after it is ready", () => {
+    expect(justReady(deck, after(5))).toBe(true);
+    expect(justReady(deck, after(119))).toBe(true);
+    expect(justReady(deck, after(121))).toBe(false);
+    expect(justReady({ ...deck, status: "generating" }, after(5))).toBe(false);
   });
 });

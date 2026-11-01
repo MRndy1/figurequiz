@@ -10,7 +10,7 @@ import { SignedImage } from "@/components/signed-image";
 import { StudyDesk } from "@/components/study-desk";
 import { BackLink, button, Card, HandNote, ProgressBar } from "@/components/ui";
 import { getBalance, getDeckCredits } from "@/lib/dal/credits";
-import { canDelete, getDeck, getDesk, isStalled, type Deck, type Desk } from "@/lib/dal/documents";
+import { canDelete, getDeck, getDesk, isDrawing, isStalled, type Deck, type Desk } from "@/lib/dal/documents";
 import { firstUp, justFinished } from "@/lib/desk";
 import { megabytes, pageCount } from "@/lib/format";
 
@@ -37,8 +37,11 @@ const NOTE: Record<Deck["status"], string> = {
 /** One deck: where it is in the pipeline, why it failed, or what it holds and the way in. */
 export default async function DeckPage({ params }: Props) {
   const { id } = await params;
-  const deck = await getDeck(id);
-  if (!deck) notFound();
+  const saved = await getDeck(id);
+  if (!saved) notFound();
+  const now = new Date();
+  // Until its diagrams have their blanks it stays on the desk, or they'd be missing from the deck.
+  const deck: Deck = (await isDrawing(saved, now)) ? { ...saved, status: "generating" } : saved;
   const [spent, balance, desk] = await Promise.all([
     getDeckCredits(deck.id),
     getBalance(),
@@ -68,7 +71,7 @@ export default async function DeckPage({ params }: Props) {
       </div>
 
       <div className="animate-rise [animation-delay:80ms]">
-        <StatusPanel deck={deck} desk={desk} outOfCredits={balance < 1} now={new Date()} />
+        <StatusPanel deck={deck} desk={desk} outOfCredits={balance < 1} now={now} />
       </div>
 
       {canDelete(deck.status) && (

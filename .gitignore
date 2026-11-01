@@ -32,3 +32,6 @@ ingest/out/
 *.ppt
 *.docx
 *.pdf
+*.zip
+# The one deck made to be published: its slides are already public, behind /demo.
+!samples/Brain_Anatomy_Sample.pptx

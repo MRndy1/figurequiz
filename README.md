@@ -5,7 +5,40 @@ PDF lecture files into practice questions, including the kind other study tools 
 diagram questions, where the labels on a lecture figure are blanked out and the student types
 them back in.
 
-**Try it:** https://figurequiz.online
+**To test it you only need a web browser.** It's live at https://figurequiz.online, so there is
+no code to run: see [Try it online](#try-it-online). To run the code yourself, see
+[Run it on your own computer](#run-it-on-your-own-computer).
+
+## Try it online
+
+FigureQuiz runs in the cloud, so there is nothing to install. It works on a computer or a phone.
+
+1. **Make an account.** Open https://figurequiz.online/signup, enter an email address and a
+   password of at least 8 characters, and press **Create account**. No confirmation email is
+   sent: you are signed in straight away, with 100 free credits. Please use email and password
+   here, because **Continue with Google** only works for approved test accounts for now.
+2. **Upload a lecture.** Press **Choose a file** and pick a `.pptx` or `.pdf` up to 50 MB (PDFs
+   can have up to 100 pages). Each page that gets questions uses one credit, and an account can
+   upload 10 files a month. If you don't have a lecture to hand, use a file from the `samples`
+   folder, such as the 4-slide
+   [`Brain_Anatomy_Sample.pptx`](https://github.com/MRndy1/figurequiz/raw/main/samples/Brain_Anatomy_Sample.pptx).
+3. **Wait a minute or two.** The page shows the deck being made. It can say "in line" for the
+   first 30 seconds or so, while the cloud worker starts. You can leave the page: the deck keeps
+   going, and it waits for you under **Decks**.
+4. **Study.** Press **Start studying**. Diagram questions come first: type each missing label onto
+   the diagram, then press **Check answers**.
+
+Things worth trying:
+
+- **Marking:** misspell a label by one letter, and it is marked "right, typo forgiven". Type a
+  label from elsewhere on the diagram, and it is marked wrong.
+- **Sources:** once you have answered a question, **View the slide** shows where it came from.
+- **Essays:** a written answer is marked by AI against a rubric, for 2 credits.
+- **Phone:** sign in to the same account on a phone and carry on where you left off.
+
+**No account?** The [sample deck](https://figurequiz.online/demo) is open to everyone, and
+dropping a file on the [home page](https://figurequiz.online) makes a guest deck with its first
+3 questions open.
 
 ## What it does
 
@@ -41,6 +74,7 @@ flowchart TD
 | `ingest/` | Python 3.11 worker: reads PPTX (python-pptx) and PDF (PyMuPDF), renders pages with LibreOffice, runs Tesseract OCR and draws blanks with Pillow |
 | `supabase/` | Postgres schema with row-level security on every table, storage, job queues (pgmq) and database tests |
 | `contracts/` | Example payloads that both services' tests check against the shared schemas |
+| `samples/` | Files to upload when trying it out |
 
 It all runs in the cloud, so a student can upload from a phone and nothing has to run on anyone's
 computer. The web app is on Vercel, and the database, sign-in, files and queues are on Supabase.
@@ -55,31 +89,114 @@ a model; it only extracts.
 ## Results
 
 Measured in production on four real lecture decks: 65 questions of six types, about 1.9¢ of AI
-per deck, ready about 42 seconds after upload. 467 automated tests cover marking, the database's
+per deck, ready about 42 seconds after upload. 495 automated tests cover marking, the database's
 security rules and the worker.
 
-## Running it locally
+## Run it on your own computer
 
-You need Node 20 or later, Docker and the Supabase CLI.
+You don't need any of this to test the site. Commands are for macOS or Linux; on Windows, run
+them in WSL.
+
+### The sample deck only
+
+This runs with no accounts or keys, and with no internet once it is installed. You need
+[Node 20 or later](https://nodejs.org/). From the top folder:
 
 ```bash
-supabase start                       # local Postgres, auth, storage and queues
-cp web/.env.example web/.env.local   # then fill in the values it lists
-cd web && npm ci && npm run dev      # http://localhost:3000
+cd web
+npm ci
+npm run dev
 ```
 
-The worker needs LibreOffice and Tesseract, so it runs in its Docker image:
+Then open http://localhost:3000/demo. Without the internet the terminal warns that it can't
+download the fonts, and the page uses plainer ones. Only the sample deck works this way: signing
+in and uploading need the whole app.
+
+### The whole app
+
+This runs the app, database and worker on your computer. It still needs the internet, because
+Claude writes the questions through OpenRouter.
+
+You need Node 20 or later, [Docker](https://docs.docker.com/get-docker/) (keep it running), the
+[Supabase CLI](https://supabase.com/docs/guides/local-development/cli/getting-started) and an
+[OpenRouter API key](https://openrouter.ai/keys) with a little credit: a deck costs about 2¢.
+Start from the top folder of a fresh copy, because step 2 writes `web/.env.local` and
+`ingest/.env`.
+
+**1. Start the local database, sign-in, file storage and queues.** The first run downloads
+several Docker images.
 
 ```bash
-cp ingest/.env.example ingest/.env   # then fill it in
+supabase start
+```
+
+**2. Write the settings files.**
+
+```bash
+eval "$(supabase status -o env 2>/dev/null | grep -E '^(API_URL|PUBLISHABLE_KEY|SECRET_KEY)=')"
+CALLBACK_SECRET=$(openssl rand -hex 32)
+
+cat > web/.env.local <<EOF
+NEXT_PUBLIC_SUPABASE_URL=$API_URL
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=$PUBLISHABLE_KEY
+SUPABASE_SECRET_KEY=$SECRET_KEY
+INGEST_CALLBACK_SECRET=$CALLBACK_SECRET
+SIGNUPS_ENABLED=true
+DAILY_BUDGET_USD=1
+EOF
+
+cat > ingest/.env <<EOF
+SUPABASE_URL=http://host.docker.internal:54321
+SUPABASE_SECRET_KEY=$SECRET_KEY
+INGEST_CALLBACK_URL=http://host.docker.internal:3000/api/ingest/callback
+INGEST_CALLBACK_SECRET=$CALLBACK_SECRET
+EOF
+```
+
+Then open `web/.env.local` in a text editor and add your key as a new line:
+
+```
+OPENROUTER_API_KEY=your-key-here
+```
+
+**3. Start the app.**
+
+```bash
+cd web
+npm ci
+npm run dev
+```
+
+**4. Start the worker, in a second terminal, from the top folder.** It needs LibreOffice and
+Tesseract, so it runs in Docker. The first build takes a few minutes.
+
+```bash
 docker build -t ingest:dev ingest/
-docker run --rm --env-file ingest/.env ingest:dev
+docker run --rm --add-host=host.docker.internal:host-gateway --env-file ingest/.env ingest:dev
 ```
 
-Tests: `npx vitest run` in `web/`, `pytest` in `ingest/`, and `supabase test db`.
+**5. Use it.** Open http://localhost:3000/signup, make an account and upload a file, as in
+[Try it online](#try-it-online). Accounts here are local, so any email address works.
 
-The brain diagram in the sample deck behind `/demo` is Figure 728 of *Gray's Anatomy* (1918),
-public domain, from
+If the key is missing or wrong, the deck stops with "Writing questions failed", and the first
+terminal says why. Your credits aren't touched: fix the key, restart `npm run dev`, and press
+**Try again** on the deck.
+
+To stop, press Ctrl+C in both terminals, then run `supabase stop`.
+
+### Tests
+
+```bash
+cd web && npx vitest run      # after npm ci
+cd ingest && uv run pytest    # needs uv: https://docs.astral.sh/uv/
+supabase db reset && supabase test db   # with supabase running; reset empties the local database
+```
+
+## Sample deck
+
+`samples/Brain_Anatomy_Sample.pptx` is the deck behind `/demo`. Its text is adapted from Johns
+Hopkins Medicine's *Brain Anatomy and How the Brain Works*. Its diagram is Figure 728 of *Gray's
+Anatomy* (1918), public domain, from
 [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Lobes_of_the_brain_NL.svg), with
 labels added for FigureQuiz (`web/data/demo/brain-lobes.svg`).
 

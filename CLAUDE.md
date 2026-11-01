@@ -244,6 +244,9 @@ payload is the extracted table with each blanked cell replaced by `{"blank": n}`
 
 **`questions.status`** — `pending` | `ready` | `failed`. Diagram questions start `pending`
 until their `blank` job finishes; every other type, tables included, is `ready` at once.
+A deck turns `ready` when its questions are written, up to about 15 seconds before an idle worker
+draws their blanks, so its page (`isDrawing`) keeps it on the desk while any question is `pending`,
+for at most two minutes, so a stopped worker can't hide the rest of the deck.
 Students only see `ready` questions. Studying orders them by type, and the enum puts
 `diagram_blank` then `table_blank` first.
 
