@@ -42,6 +42,12 @@ flowchart TD
 | `supabase/` | Postgres schema with row-level security on every table, storage, job queues (pgmq) and database tests |
 | `contracts/` | Example payloads that both services' tests check against the shared schemas |
 
+It all runs in the cloud, so a student can upload from a phone and nothing has to run on anyone's
+computer. The web app is on Vercel, and the database, sign-in, files and queues are on Supabase.
+The worker is an Azure Container Apps job ([`ingest/azure-job.yaml`](ingest/azure-job.yaml)): Azure
+checks the queue every 15 seconds, starts a run when an upload is waiting, and scales back to zero
+when the queue is empty. GitHub Actions builds its image.
+
 Claude models write the questions, through OpenRouter: Haiku 5.5 for cheap checks and simple text
 questions, Sonnet 5.5 wherever a wrong answer key would mis-mark a student. The worker never calls
 a model; it only extracts.

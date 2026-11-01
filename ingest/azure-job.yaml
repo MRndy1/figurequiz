@@ -1,0 +1,61 @@
+# The worker in the cloud: an Azure Container Apps job that runs only while uploads wait.
+# Azure asks public.waiting_jobs() every 15 seconds and starts one run when jobs are claimable;
+# the run ends once both queues have stayed empty for 90 seconds, so an idle month costs nothing.
+#
+# Create it once (the two secrets below are placeholders, set them afterwards):
+#   id=$(az containerapp env show -g rg-figurequiz -n figurequiz-env --query id -o tsv)
+#   sed "s|ENVIRONMENT_ID|$id|" ingest/azure-job.yaml > /tmp/job.yaml
+#   az containerapp job create -g rg-figurequiz -n figurequiz-worker --yaml /tmp/job.yaml
+#   az containerapp job secret set -g rg-figurequiz -n figurequiz-worker \
+#     --secrets supabase-secret-key=<worker's key> callback-secret=<callback secret>
+#
+# The image comes from .github/workflows/worker-image.yml, and each run uses the newest one.
+location: australiaeast
+properties:
+  environmentId: ENVIRONMENT_ID
+  configuration:
+    triggerType: Event
+    replicaTimeout: 1800
+    replicaRetryLimit: 0
+    secrets:
+      - name: supabase-secret-key
+        value: placeholder
+      - name: callback-secret
+        value: placeholder
+    eventTriggerConfig:
+      parallelism: 1
+      replicaCompletionCount: 1
+      scale:
+        minExecutions: 0
+        maxExecutions: 1
+        pollingInterval: 15
+        rules:
+          - name: waiting-jobs
+            type: metrics-api
+            metadata:
+              url: https://roffcwhgmkuxupctuhty.supabase.co/rest/v1/rpc/waiting_jobs
+              valueLocation: waiting
+              targetValue: "1"
+              authMode: apiKey
+              method: header
+              keyParamName: apikey
+            auth:
+              - secretRef: supabase-secret-key
+                triggerParameter: apiKey
+  template:
+    containers:
+      - name: worker
+        image: ghcr.io/mrndy1/figurequiz-worker:latest
+        command: ["python", "-m", "app.worker", "--once", "--linger", "90"]
+        resources:
+          cpu: 1
+          memory: 2Gi
+        env:
+          - name: SUPABASE_URL
+            value: https://roffcwhgmkuxupctuhty.supabase.co
+          - name: SUPABASE_SECRET_KEY
+            secretRef: supabase-secret-key
+          - name: INGEST_CALLBACK_URL
+            value: https://figurequiz.vercel.app/api/ingest/callback
+          - name: INGEST_CALLBACK_SECRET
+            secretRef: callback-secret

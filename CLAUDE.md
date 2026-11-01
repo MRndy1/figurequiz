@@ -109,26 +109,35 @@ shared secret sent by `ingest`.
 |---|---|---|
 | `web` | Vercel (Hobby for the capstone; Pro once it takes real payments) | free |
 | DB / Auth / Storage / Queues | Supabase cloud, free plan | free |
-| `ingest` | Azure Container Apps job (not yet; Docker on a developer machine until then) | monthly free grant |
+| `ingest` | Azure Container Apps job, image on GitHub's container registry | monthly free grant; the public image is free |
 
-**Live since 2026-10-26** at https://figurequiz.online (and https://figurequiz.vercel.app):
-Vercel deploys every push to `main`, and `ingest` runs in Docker on a developer machine until
-it moves to Azure. Accounts and settings are in `SESSION.md`, *Production*.
+**Live since 2026-10-26** at https://figurequiz.online (and https://figurequiz.vercel.app), and
+**all in the cloud since 2026-11-01**: an upload from any device needs nothing running on a
+personal computer. Vercel deploys every push to `main`. Accounts and settings are in
+`SESSION.md`, *Production*.
 
-**`ingest` on Azure, decided 2026-10-26.** It runs as a Container Apps *job* with an
-event-driven trigger on queue depth: an execution starts when `extract` or `blank` has work,
-and the job scales to zero when both are empty, so an idle month costs nothing. Each
-subscription gets 180,000 vCPU-seconds and 360,000 GiB-seconds free per calendar month. The
-4-slide sample deck takes 1.8 s in the container; even allowing a minute per real deck with
-cold start, the grant covers about 3,000 decks a month. A job has no ingress, which suits a
-worker that only makes outbound connections.
+**`ingest` on Azure, built 2026-11-01** (`ingest/azure-job.yaml`). It runs as a Container Apps
+*job* with an event-driven trigger: a KEDA `metrics-api` rule asks `public.waiting_jobs()` every
+15 seconds, over PostgREST with the worker's key, so the trigger needs no database connection.
+A run starts when a job is claimable (12 s after queueing, then about 20 s to start the
+container) and runs `python -m app.worker --once --linger 90`: it stays 90 seconds after the
+queues empty, because a deck's `blank` jobs arrive seconds after its `extract` job. At most one
+run exists at a time. Between uploads the job scales to zero, so an idle month costs nothing.
+Each subscription gets 180,000 vCPU-seconds and 360,000 GiB-seconds free per calendar month; at
+1 vCPU and 2 GiB a run of about two minutes uses 120 and 240 of those, so the grant covers about
+1,500 uploads a month. A job has no ingress, which suits a worker that only makes outbound
+connections.
 
-Keep the image portable: the subscription's terms are in `SESSION.md`, *Azure*. Not deployed
-to Azure yet: the worker runs as `python -m app.worker` (`--once` for a job execution) in the
-same image on a developer machine, which stays the fallback, and the image moves to any
-container host after the course. Whenever no worker runs, uploads wait in the queue and
-everything else keeps working. Free Supabase projects pause after a week without activity —
-un-pause before a test day or the demo.
+**The image:** `.github/workflows/worker-image.yml` builds `linux/amd64` in the public repo and
+pushes `ghcr.io/mrndy1/figurequiz-worker:latest` whenever `ingest/` changes there, and each run
+uses the newest image. So a worker change reaches production when it is exported to the public
+repo (`scripts/export-public.py --push`), not when it is pushed here.
+
+Keep the image portable: it moves to any container host, and the subscription's terms are in
+`SESSION.md`, *Azure*. It also runs on a developer machine with Docker (see Commands), and the
+two can run side by side because claiming a job is atomic. Whenever no worker runs, uploads wait
+in the queue and everything else keeps working. Free Supabase projects pause after a week
+without activity — un-pause before a test day or the demo.
 
 ---
 
@@ -481,9 +490,14 @@ npm run typecheck
 npx vitest run
 # .claude/launch.json's "web-local" runs it against the local Supabase stack on :3005
 
-# ingest: the worker needs LibreOffice and Tesseract, so it runs in its image
+# ingest in production: an Azure job, nothing to start (ingest/azure-job.yaml)
+az containerapp job execution list -g rg-figurequiz -n figurequiz-worker -o table
+az containerapp job logs show -g rg-figurequiz -n figurequiz-worker \
+  --execution <name> --container worker
+
+# ingest on this machine: it needs LibreOffice and Tesseract, so it runs in its image
 docker build -t ingest:dev ingest/
-docker run -d --name ingest --restart unless-stopped --stop-timeout 120 \
+docker run -d --name ingest --stop-timeout 120 \
   --env-file ingest/.env ingest:dev   # drains blank, then extract; stop with docker stop
 docker logs -f ingest
 cd ingest && pytest
